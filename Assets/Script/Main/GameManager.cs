@@ -23,7 +23,7 @@ namespace Main
         public MainUI mainUI;
 
         private bool isPlaying = false;
-        private float turnTime = 20f;
+        private float turnTime = 5f;
         private int maxTurnNum = 2; //모든 플레이어가 2번 그리면 끝 
         private int maxAnswer = 2;
         private int answerPoint = 50;
@@ -217,12 +217,11 @@ namespace Main
         public void GameEnd(GameEndType endType, string message = "")
         {
             isPlaying = false;
-
-            StopAllCoroutines();
-            mainUI.GameEnd();
-            RemoveMouseTracker();
             quizQue = null;
 
+            StopAllCoroutines();
+            RemoveMouseTracker();
+            
             List<PlayerItem> playerList = mainUI.GetPlayerListOrderByScore();
 
             string winnerName = playerList[0].nameText.text;
@@ -232,7 +231,7 @@ namespace Main
             {
                 ShowInterrupMessage(message);
             }
-            else if(score == 0 || playerList[0].Score == playerList[1].Score)
+            else if(score == 0 || score == playerList[1].Score)
             {
                 ShowResultDraw();
             }
@@ -242,6 +241,7 @@ namespace Main
                 RecordWinLose(PhotonNetwork.LocalPlayer, PhotonNetwork.NickName.Equals(winnerName));
             }
 
+            mainUI.GameEnd();
             PhotonNetwork.CurrentRoom.IsVisible = true;
         }
 
