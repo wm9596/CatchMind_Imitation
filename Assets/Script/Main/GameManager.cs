@@ -367,6 +367,7 @@ namespace Main
                 }
                 turnNum++;
             }
+
             SendRPC("GameEnd", GameEndType.normal, "");
             isPlaying = false;
 
