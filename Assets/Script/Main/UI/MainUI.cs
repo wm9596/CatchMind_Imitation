@@ -81,6 +81,7 @@ namespace Main.UI
             SetScoreText("0");
             watingPanel.gameObject.SetActive(true);
             TurnChange("", false);
+            PlayerScoreReset();
         }
 
         public void AddPlayer(UserAccount user,bool isMine)
@@ -157,6 +158,14 @@ namespace Main.UI
             scoreText.text = score;
         }
 
+        public void PlayerScoreReset()
+        {
+            foreach(var player in playerDictionary.Values)
+            {
+                player.Score = 0;
+            }
+        }
+
         public void SetQuizWord(bool isActive, string word)
         {
             quizPanel.SetActive(isActive);
@@ -172,6 +181,5 @@ namespace Main.UI
         {
             return playerDictionary.Values.OrderByDescending(item => item.Score).ToList();
         }
-
     }
 }

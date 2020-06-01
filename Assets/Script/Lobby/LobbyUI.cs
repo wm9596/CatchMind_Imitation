@@ -46,13 +46,14 @@ namespace Lobby
 
             int win = (int)hashtable["win"];
             int lose = (int)hashtable["lose"];
+
             if((win+lose)==0)
             {
                 textWinRate.text = "0%";
             }
             else
             {
-                textWinRate.text = (win / (float)(win + lose) * 100).ToString("#") + "%";
+                textWinRate.text = (win / (float)(win + lose) * 100).ToString("0") + "%";
             }
             
         }

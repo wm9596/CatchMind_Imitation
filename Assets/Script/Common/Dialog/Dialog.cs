@@ -151,6 +151,7 @@ namespace Common.Dialog
                 dialog = Instantiate(prefab).GetComponent<T2>();
                 dialog.SetTitle(title);
 
+                dialog.SetCloseTime(closeTime);
                 //dialog.SetPositiveBtn(positiveBtnText, positiveBtnAction);
 
                 SetBtns();

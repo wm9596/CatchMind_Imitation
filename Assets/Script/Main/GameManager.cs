@@ -23,7 +23,7 @@ namespace Main
         public MainUI mainUI;
 
         private bool isPlaying = false;
-        private float turnTime = 10f;
+        private float turnTime = 20f;
         private int maxTurnNum = 2; //모든 플레이어가 2번 그리면 끝 
         private int maxAnswer = 2;
         private int answerPoint = 50;
@@ -36,7 +36,7 @@ namespace Main
 
         private DatabaseConnecter db;
 
-        private Dialog dialog;
+        Dialog dialog;
 
         private void Start()
         {
@@ -166,10 +166,12 @@ namespace Main
         public void RightAnswer(string sender)
         {
             Debug.Log(sender);
+            if (answerNum < 1) return;
+
             mainUI.PlayerGetScore(sender, answerPoint * answerNum);
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            builder.SetTitle("득점 알림").SetMessage($"{sender}님 정답").SetCloseTime(1).Build().Show();
+            builder.SetTitle("득점 알림").SetMessage($"{sender}님 정답").SetCloseTime(1f).Build().Show();
             answerNum--;
         }
 
@@ -309,6 +311,8 @@ namespace Main
         [PunRPC]
         public void TurnChange(string name)
         {
+            answerNum = maxAnswer;
+
             bool isMyturn = PhotonNetwork.NickName.Equals(name);
             mainUI.TurnChange(name, isMyturn);
 
@@ -320,14 +324,17 @@ namespace Main
                 mainUI.SetQuizWord(true, quizWord);
                 //PhotonNetwork.Instantiate("Prefabs/MouseTracker", Vector3.zero, Quaternion.identity);
             }
+
+            AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
+            dialog = builder.SetTitle("턴 변경").SetMessage($"{name} 님 턴").SetCloseTime(1f).Build();
+            dialog.Show();
         }
 
         IEnumerator TurnManage()
         {
-
             float turnNum = 0;
             float time = turnTime;
-            answerNum = maxAnswer;
+            
             quizQue = new Queue<string>();
             WaitForSecondsRealtime wait = new WaitForSecondsRealtime(1);
             
@@ -337,6 +344,7 @@ namespace Main
             {
                 foreach (var player in PhotonNetwork.PlayerList)
                 {
+                   
                     quizWord = "";
                     currentPlayer = player.NickName;
 
@@ -345,6 +353,8 @@ namespace Main
                     yield return new WaitWhile(() => quizWord.Equals(""));
 
                     SendRPC("TurnChange", currentPlayer);
+
+                    yield return new WaitWhile(() => dialog != null);
 
                     while (time > 0 && answerNum > 0)
                     {
