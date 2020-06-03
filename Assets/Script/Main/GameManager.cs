@@ -23,10 +23,12 @@ namespace Main
         public MainUI mainUI;
 
         private bool isPlaying = false;
-        private float turnTime = 5f;
-        private int maxTurnNum = 2; //모든 플레이어가 2번 그리면 끝 
-        private int maxAnswer = 2;
-        private int answerPoint = 50;
+        private float turnTime = 30f;
+        private int maxRoundNum = 2; //모든 플레이어가 2번 그리면 끝 
+        private int maxAnswer = 1;
+        private int answerPoint = 100;
+
+        private float roundNum = 0;
 
         private string quizWord = "";
         private string currentPlayer;
@@ -74,7 +76,7 @@ namespace Main
             {
                 AddPlayer(p);
             }
-            mainUI.ChangeMasterPlayer(PhotonNetwork.MasterClient.NickName,PhotonNetwork.NickName);
+            mainUI.ChangeMasterPlayer(PhotonNetwork.MasterClient.NickName, PhotonNetwork.NickName);
         }
 
         public override void OnLeftRoom()
@@ -100,14 +102,14 @@ namespace Main
 
             mainUI.RemovePlayer(otherPlayer.NickName);
 
-            if(otherPlayer.IsMasterClient && PhotonNetwork.PlayerList[0].Equals(PhotonNetwork.NickName))
+            if (otherPlayer.IsMasterClient && PhotonNetwork.PlayerList[0].Equals(PhotonNetwork.NickName))
             {
                 PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer);
             }
             else if (PhotonNetwork.PlayerList.Length <= 1 && isPlaying)
             {
                 isPlaying = false;
-                SendRPC("GameEnd", GameEndType.Interrupted, "게임을 진행하기 위한 플레이어가 부족합니다.");
+                SendRPC("GameEnd", GameEndType.Interrupted, "게임을 진행하기 위한 플레이어가 부족하여 게임이 종료됩니다.");
             }
         }
 
@@ -124,7 +126,7 @@ namespace Main
             }
 
             if (newMasterClient.NickName.Equals(PhotonNetwork.NickName))
-                mainUI.ChangeMasterPlayer(PhotonNetwork.NickName,PhotonNetwork.NickName);
+                mainUI.ChangeMasterPlayer(PhotonNetwork.NickName, PhotonNetwork.NickName);
         }
 
         public void LeaveRoom()
@@ -151,14 +153,16 @@ namespace Main
 
         public void SendChat(string msg)
         {
-            if (msg.Equals(quizWord))
+            if (isPlaying && msg.Equals(quizWord))
             {
-                SendRPC("RightAnswer", PhotonNetwork.NickName);
+                SendRPC("GetChat", PhotonNetwork.NickName, msg, true);
                 mainUI.ToggleChating(false);
+
+                SendRPC("RightAnswer", PhotonNetwork.NickName);
             }
             else
             {
-                SendRPC("GetChat", PhotonNetwork.NickName, msg);
+                SendRPC("GetChat", PhotonNetwork.NickName, msg, false);
             }
         }
 
@@ -166,19 +170,25 @@ namespace Main
         public void RightAnswer(string sender)
         {
             Debug.Log(sender);
-            if (answerNum < 1) return;
+            //if (answerNum < 1) return;
 
-            mainUI.PlayerGetScore(sender, answerPoint * answerNum);
+            mainUI.PlayerGetScore(sender, answerPoint);
+            mainUI.PlayerGetScore(currentPlayer, answerPoint/2);
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            builder.SetTitle("득점 알림").SetMessage($"{sender}님 정답").SetCloseTime(1f).Build().Show();
+            builder.SetTitle("정답 알림").SetMessage($"{sender}님 정답 {answerPoint}점 획득 \n\n" +
+                                                    $"문제의 출제자인 {currentPlayer}님 {answerPoint/2}점 획득")
+                                                    .SetCloseTime(2f)
+                                                    .Build()
+                                                    .Show();
             answerNum--;
         }
 
         [PunRPC]
-        public void GetChat(string name, string msg)
+        public void GetChat(string name, string msg, bool isAnswer)
         {
-            mainUI.GetChat(name, msg);
+            Debug.Log(name+"  " + msg +" " + isAnswer);
+            mainUI.GetChat(name, msg, isAnswer);
         }
 
         private void RemoveMouseTracker()
@@ -221,7 +231,7 @@ namespace Main
 
             StopAllCoroutines();
             RemoveMouseTracker();
-            
+
             List<PlayerItem> playerList = mainUI.GetPlayerListOrderByScore();
 
             string winnerName = playerList[0].nameText.text;
@@ -231,7 +241,7 @@ namespace Main
             {
                 ShowInterrupMessage(message);
             }
-            else if(score == 0 || score == playerList[1].Score)
+            else if (score == 0 || score == playerList[1].Score)
             {
                 ShowResultDraw();
             }
@@ -242,6 +252,7 @@ namespace Main
             }
 
             mainUI.GameEnd();
+            FindObjectOfType<Main.Drawing.DrawingToolUI>().ColorBtnAllDeSelected();
             PhotonNetwork.CurrentRoom.IsVisible = true;
         }
 
@@ -311,11 +322,10 @@ namespace Main
         [PunRPC]
         public void TurnChange(string name)
         {
-            answerNum = maxAnswer;
-
             bool isMyturn = PhotonNetwork.NickName.Equals(name);
-            mainUI.TurnChange(name, isMyturn);
+            currentPlayer = name;
 
+            mainUI.TurnChange(name, isMyturn);
             RemoveMouseTracker();
 
             if (isMyturn)
@@ -326,31 +336,41 @@ namespace Main
             }
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            dialog = builder.SetTitle("턴 변경").SetMessage($"{name} 님 턴").SetCloseTime(1f).Build();
+            dialog = builder.SetTitle("턴 변경").SetMessage($"{name} 님 턴").SetCloseTime(1.5f).Build();
+            dialog.Show();
+
+            answerNum = maxAnswer;
+        }
+
+        [PunRPC]
+        public void Alert(string msg, float time)
+        {
+            AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
+            dialog = builder.SetTitle("알림").SetMessage(msg).SetCloseTime(time).Build();
             dialog.Show();
         }
 
         IEnumerator TurnManage()
         {
-            float turnNum = 0;
             float time = turnTime;
-            
+            roundNum = 0;
             quizQue = new Queue<string>();
+
+            WaitForSeconds delay = new WaitForSeconds(0.5f);
             WaitForSecondsRealtime wait = new WaitForSecondsRealtime(1);
-            
+            WaitWhile waitWhile = new WaitWhile(() => dialog != null);
+
             yield return StartCoroutine(DatabaseConnecter.GetInstance().GetQuizWord(quizQue));
 
-            while (turnNum < maxTurnNum)
+            do
             {
                 foreach (var player in PhotonNetwork.PlayerList)
                 {
-                   
                     quizWord = "";
                     currentPlayer = player.NickName;
 
                     QuizWordChange();
-                    //yield return photonView.StartCoroutine(ITurnChange(currentPlayer));
-                    yield return new WaitWhile(() => quizWord.Equals(""));
+                    yield return waitWhile;
 
                     SendRPC("TurnChange", currentPlayer);
 
@@ -359,14 +379,18 @@ namespace Main
                     while (time > 0 && answerNum > 0)
                     {
                         time -= wait.waitTime;
-                        Debug.Log(time);
                         SendRPC("TimeChange", time);
                         yield return wait;
                     }
                     time = turnTime;
+                    yield return waitWhile;
                 }
-                turnNum++;
-            }
+                roundNum++;
+
+                SendRPC("Alert", $"{roundNum + 1} 라운드가 종료됐습니다.", 2f);
+                yield return delay;
+                yield return waitWhile;
+            } while (roundNum < maxRoundNum);
 
             SendRPC("GameEnd", GameEndType.normal, "");
             isPlaying = false;

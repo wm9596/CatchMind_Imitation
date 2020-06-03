@@ -139,13 +139,13 @@ namespace Main.UI
 
         public void SendChat(string str)
         {
-            if(str.Length>1)    
+            if(str.Length>=1)    
              SendChatHandler?.Invoke(str);
         }
 
-        public void GetChat(string name, string msg)
+        public void GetChat(string name, string msg,bool isAnswer)
         {
-            playerDictionary[name].DisplayChat(msg);
+            playerDictionary[name].DisplayChat(msg, isAnswer);
         }
 
         public void PlayerGetScore(string name,int point)

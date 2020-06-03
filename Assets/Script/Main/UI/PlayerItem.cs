@@ -99,9 +99,9 @@ public class PlayerItem : MonoBehaviour
         turnImage.SetActive(isMyTurn);
     }
 
-    public void DisplayChat(string msg)
+    public void DisplayChat(string msg,bool isAnswer)
     {
-        speechBubble.DisplayChat(msg);
+        speechBubble.DisplayChat(msg, isAnswer);
     }
 
     public class PlayerItemComparerHelper : IComparer<PlayerItem>

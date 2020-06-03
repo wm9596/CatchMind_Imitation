@@ -5,14 +5,25 @@ using UnityEngine.UI;
 
 public class SpeechBubble : MonoBehaviour
 {
+    private static Dictionary<bool, Color> colorDic;
+
     public  Text msgText;
 
     public float displayTime = 1.5f;
    
-    public void DisplayChat(string msg)
+    static SpeechBubble()
+    {
+        colorDic = new Dictionary<bool, Color>();
+        colorDic[true] = Color.blue;
+        colorDic[false] = Color.black;
+
+    }
+
+    public void DisplayChat(string msg, bool isAnswer)
     {
         gameObject.SetActive(true);
         msgText.text = msg;
+        msgText.color = colorDic[isAnswer];
         StopAllCoroutines();
         StartCoroutine(AutoDisable());
     }

@@ -17,10 +17,12 @@ namespace Main.Drawing
         public int minWidth = 5, maxWidth = 25;
 
         public GameObject blockPanel;
+        public GameObject colorBtnGroup;
 
         Vector2Int graphMinPos, graphMaxPos;
         List<Vector2Int> graphPosList;
         Color[] clearColors;
+        Dictionary<string, Button> colorBtnDic;
 
         private MouseTracker mouseTracker
         {
@@ -34,6 +36,19 @@ namespace Main.Drawing
         {
             InitSlider();
             InitSprtie();
+            InitColorBtnDic();
+        }
+
+        private void InitColorBtnDic()
+        {
+            colorBtnDic = new Dictionary<string, Button>();
+            var btnArr = colorBtnGroup.GetComponentsInChildren<Button>();
+
+            foreach(var btn in btnArr)
+            {
+                string str = btn.GetComponentInChildren<Text>().text;
+                colorBtnDic.Add(str, btn);
+            }
         }
 
         private void InitSlider()
@@ -78,14 +93,27 @@ namespace Main.Drawing
 
         public void OnColorBtnClick(Text text)
         {
-            // mouseTracker.SetColor(text.text);
-            mouseTracker.SendRPC("SetColor", text.text);
+            OnColorBtnClick(text.text);
         }
 
         public void OnColorBtnClick(string str)
         {
-            // mouseTracker.SetColor(text.text);
             mouseTracker.SendRPC("SetColor", str);
+            ColorBtnSelected(str);
+        }
+
+        private void ColorBtnSelected(string color)
+        {
+            ColorBtnAllDeSelected();
+            colorBtnDic[color].image.color = Color.gray;
+        }
+
+        public void ColorBtnAllDeSelected()
+        {
+            foreach (var btn in colorBtnDic.Values)
+            {
+                btn.image.color = Color.white;
+            }
         }
 
         public void OnEraseAllBtnClick()
