@@ -23,12 +23,13 @@ namespace Main
         public MainUI mainUI;
 
         private bool isPlaying = false;
-        private float turnTime = 30f;
+        private float turnTime = 60f;
         private int maxRoundNum = 2; //모든 플레이어가 2번 그리면 끝 
         private int maxAnswer = 1;
         private int answerPoint = 100;
 
-        private float roundNum = 0;
+        private float roundNum;
+        private float time;
 
         private string quizWord = "";
         private string currentPlayer;
@@ -169,25 +170,25 @@ namespace Main
         [PunRPC]
         public void RightAnswer(string sender)
         {
-            Debug.Log(sender);
             //if (answerNum < 1) return;
+            int drwaingPoint = answerPoint /(int)(turnTime / time);
 
             mainUI.PlayerGetScore(sender, answerPoint);
-            mainUI.PlayerGetScore(currentPlayer, answerPoint/2);
+            mainUI.PlayerGetScore(currentPlayer, drwaingPoint);
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            builder.SetTitle("정답 알림").SetMessage($"{sender}님 정답 {answerPoint}점 획득 \n\n" +
-                                                    $"문제의 출제자인 {currentPlayer}님 {answerPoint/2}점 획득")
-                                                    .SetCloseTime(2f)
-                                                    .Build()
-                                                    .Show();
+            dialog =  builder.SetTitle("정답 알림").SetMessage($"{sender}님 정답 {answerPoint}점 획득 \n\n" +
+                                                    $"문제의 출제자인 {currentPlayer}님 {drwaingPoint}점 획득")
+                                                    .SetCloseTime(3f)
+                                                    .Build();
+            dialog.Show();
             answerNum--;
         }
 
         [PunRPC]
         public void GetChat(string name, string msg, bool isAnswer)
         {
-            Debug.Log(name+"  " + msg +" " + isAnswer);
+            Debug.Log(name + "  " + msg + " " + isAnswer);
             mainUI.GetChat(name, msg, isAnswer);
         }
 
@@ -322,6 +323,7 @@ namespace Main
         [PunRPC]
         public void TurnChange(string name)
         {
+
             bool isMyturn = PhotonNetwork.NickName.Equals(name);
             currentPlayer = name;
 
@@ -336,7 +338,7 @@ namespace Main
             }
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            dialog = builder.SetTitle("턴 변경").SetMessage($"{name} 님 턴").SetCloseTime(1.5f).Build();
+            dialog = builder.SetTitle("턴 변경").SetMessage($"{name} 님 턴").SetCloseTime(2f).Build();
             dialog.Show();
 
             answerNum = maxAnswer;
@@ -352,7 +354,7 @@ namespace Main
 
         IEnumerator TurnManage()
         {
-            float time = turnTime;
+            time = turnTime;
             roundNum = 0;
             quizQue = new Queue<string>();
 
@@ -370,11 +372,14 @@ namespace Main
                     currentPlayer = player.NickName;
 
                     QuizWordChange();
+                    
+                    yield return delay;
                     yield return waitWhile;
 
                     SendRPC("TurnChange", currentPlayer);
 
-                    yield return new WaitWhile(() => dialog != null);
+                    yield return delay;
+                    yield return waitWhile;
 
                     while (time > 0 && answerNum > 0)
                     {
@@ -383,15 +388,15 @@ namespace Main
                         yield return wait;
                     }
                     time = turnTime;
-                    yield return waitWhile;
                 }
                 roundNum++;
 
-                SendRPC("Alert", $"{roundNum + 1} 라운드가 종료됐습니다.", 2f);
                 yield return delay;
                 yield return waitWhile;
-            } while (roundNum < maxRoundNum);
+                SendRPC("Alert", $"{roundNum + 1} 라운드가 종료됐습니다.", 3f);
 
+            } while (roundNum < maxRoundNum);
+            yield return waitWhile;
             SendRPC("GameEnd", GameEndType.normal, "");
             isPlaying = false;
 
