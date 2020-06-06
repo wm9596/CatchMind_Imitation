@@ -6,10 +6,9 @@ namespace Common.Scene
 {
     public static class SceneName
     {
-        public static readonly string START = "start";
-        public static readonly string LOGIN = "Login";
-        public static readonly string LOBBY = "Lobby";
-        public static readonly string MAIN = "Main";
+        public static readonly string LOGIN = "01.Login";
+        public static readonly string LOBBY = "02.Lobby";
+        public static readonly string MAIN = "03.Main";
 
     }
     

@@ -802,6 +802,7 @@ MonoBehaviour:
   masterImg: {fileID: 3212578488767846718}
   speechBubble: {fileID: 6748692454629163897}
   turnImage: {fileID: 422301636453676163}
+  blockPanel: {fileID: 0}
 --- !u!1 &4157001517445995668
 GameObject:
   m_ObjectHideFlags: 0

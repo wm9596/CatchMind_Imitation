@@ -29,7 +29,7 @@ namespace Main
         private int answerPoint = 100;
 
         private float roundNum;
-        private float time;
+        private float gameTime;
 
         private string quizWord = "";
         private string currentPlayer;
@@ -171,13 +171,13 @@ namespace Main
         public void RightAnswer(string sender)
         {
             //if (answerNum < 1) return;
-            int drwaingPoint = answerPoint /(int)(turnTime / time);
+            int drwaingPoint = answerPoint / (int)(turnTime / gameTime);
 
             mainUI.PlayerGetScore(sender, answerPoint);
             mainUI.PlayerGetScore(currentPlayer, drwaingPoint);
 
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
-            dialog =  builder.SetTitle("정답 알림").SetMessage($"{sender}님 정답 {answerPoint}점 획득 \n\n" +
+            dialog = builder.SetTitle("정답 알림").SetMessage($"{sender}님 정답 {answerPoint}점 획득 \n\n" +
                                                     $"문제의 출제자인 {currentPlayer}님 {drwaingPoint}점 획득")
                                                     .SetCloseTime(3f)
                                                     .Build();
@@ -203,6 +203,7 @@ namespace Main
         [PunRPC]
         public void TimeChange(float time)
         {
+            gameTime = time;
             TimeSpan timeSpan = TimeSpan.FromSeconds(time);
 
             mainUI.SetTime(string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds));
@@ -354,7 +355,7 @@ namespace Main
 
         IEnumerator TurnManage()
         {
-            time = turnTime;
+            float time = turnTime;
             roundNum = 0;
             quizQue = new Queue<string>();
 
@@ -372,7 +373,7 @@ namespace Main
                     currentPlayer = player.NickName;
 
                     QuizWordChange();
-                    
+
                     yield return delay;
                     yield return waitWhile;
 
@@ -393,9 +394,10 @@ namespace Main
 
                 yield return delay;
                 yield return waitWhile;
-                SendRPC("Alert", $"{roundNum + 1} 라운드가 종료됐습니다.", 3f);
+                SendRPC("Alert", $"{roundNum} 라운드가 종료됐습니다.", 3f);
 
             } while (roundNum < maxRoundNum);
+
             yield return waitWhile;
             SendRPC("GameEnd", GameEndType.normal, "");
             isPlaying = false;

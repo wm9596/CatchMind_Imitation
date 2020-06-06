@@ -29,12 +29,12 @@ namespace Lobby
 
         public Action<string> JoinRoomHandler;
         public Action<string, byte> CreateRoomHandler;
-
-        private List<RoomInfoItem> roomInfoItemList;
+        
+        private Dictionary<string, RoomInfoItem> roomInfoItemDic;
 
         private void Awake()
         {
-            roomInfoItemList = new List<RoomInfoItem>();
+            roomInfoItemDic = new Dictionary<string, RoomInfoItem>();
         }
 
         public void SetPlayerInfo(Hashtable hashtable)
@@ -47,7 +47,7 @@ namespace Lobby
             int win = (int)hashtable["win"];
             int lose = (int)hashtable["lose"];
 
-            if((win+lose)==0)
+            if ((win + lose) == 0)
             {
                 textWinRate.text = "0%";
             }
@@ -55,39 +55,43 @@ namespace Lobby
             {
                 textWinRate.text = (win / (float)(win + lose) * 100).ToString("0") + "%";
             }
-            
+
         }
 
         public void OnRoomInfoUpdate(List<RoomInfo> list)
         {
-            RemoveAllRoomItems();
             foreach (var info in list)
             {
-                var item = Instantiate(roomInfoPrefab, scroll.content).GetComponent<RoomInfoItem>();
-
-                if (item.SetRoomInfo(info, JoinRoomHandler))
+                if (roomInfoItemDic.ContainsKey(info.Name))
                 {
-                    roomInfoItemList.Add(item);
+                    if(info.RemovedFromList)
+                    {
+                        var item = roomInfoItemDic[info.Name];
+                        roomInfoItemDic.Remove(info.Name);
+                        Destroy(item.gameObject);
+                    }
+                    else
+                    {
+                        roomInfoItemDic[info.Name].RoomInfo = info;
+                    }
                 }
                 else
                 {
-                    Destroy(item.gameObject);
+                    var item = Instantiate(roomInfoPrefab, scroll.content).GetComponent<RoomInfoItem>();
+
+                    if (item.SetRoomInfo(info, JoinRoomHandler))
+                    {
+                        //roomInfoItemList.Add(item);
+                        roomInfoItemDic.Add(info.Name, item);
+                    }
+                    else
+                    {
+                        Destroy(item.gameObject);
+                    }
                 }
             }
         }
-
-        private void RemoveAllRoomItems()
-        {
-            foreach (var item in roomInfoItemList)
-            {
-                if (item.gameObject.activeInHierarchy)
-                    Destroy(item.gameObject);
-            }
-
-            roomInfoItemList.Clear();
-        }
-
-
+        
         public void OnCreateRoomClick()
         {
             //lobbyManager.CreateRoom("ABC");
@@ -101,13 +105,35 @@ namespace Lobby
             builder.Build().Show();
         }
 
+        public void Alert(string msg)
+        {
+            AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
+            builder.SetTitle("알림")
+                .SetMessage(msg)
+                .SetCloseTime(2f)
+                .Build()
+                .Show();
+        }
+
         private void CreateRoom(Dictionary<string, DialogInputField> dic)
         {
             string name = dic["roomName"].GetText();
 
+            if (roomInfoItemDic.ContainsKey(name))
+            {
+                Alert("이미 존재하는 방 이름입니다.");
+                return;
+            }
+
             int inputNum = int.Parse(dic["maxNum"].GetText());
-            
-            inputNum =  Mathf.Clamp(inputNum,2,5);
+
+            if (inputNum < 1 || inputNum > 5)
+            {
+                Alert("방 인원 설정이 잘못됐습니다.");
+                return;
+            }
+
+            //inputNum =  Mathf.Clamp(inputNum,2,5);
 
             byte num = Convert.ToByte(inputNum);
 

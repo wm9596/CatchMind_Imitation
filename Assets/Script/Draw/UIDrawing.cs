@@ -119,7 +119,7 @@ namespace Main.Drawing
             }
             else
             {
-                ColorBetween(pos);
+                ColorTween(pos);
             }
 
             prePos = pos;
@@ -129,11 +129,11 @@ namespace Main.Drawing
         {
             for (int w = (int)pos.x - width / 2; w <= (int)pos.x + width / 2; w++)
             {
-                if (w >= (int)img.sprite.rect.width || w < 0) continue;
+                if (w > (int)img.sprite.rect.width || w < 0) continue;
 
                 for (int h = (int)pos.y - height / 2; h <= (int)pos.y + height / 2; h++)
                 {
-                    //tex.SetPixel((int)(pos.x + w), (int)(pos.y + h), Color.red);
+                    if (h > (int)img.sprite.rect.height || w < 0) continue;
                     PixelChange(w, h);
                 }
             }
@@ -149,7 +149,7 @@ namespace Main.Drawing
 
         }
 
-        void ColorBetween(Vector2 pos)
+        void ColorTween(Vector2 pos)
         {
             float dist = Vector2.Distance(pos, prePos);
 
@@ -178,6 +178,7 @@ namespace Main.Drawing
        public void TextureClear()
         {
             tex.SetPixels32(originColors);
+            colors = null;
             tex.Apply();
         }
 

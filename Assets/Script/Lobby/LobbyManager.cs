@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 using Photon.Pun;
@@ -55,15 +56,20 @@ namespace Lobby
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
         {
             base.OnRoomListUpdate(roomList);
-           
+            Debug.Log("OnRoomListUpdate");
             lobbyUI.OnRoomInfoUpdate(roomList);
         }
 
         public void CreateRoom(string roomName, byte maxPlayers = 5)
         {
-            PhotonNetwork.CreateRoom(roomName, new RoomOptions { MaxPlayers = maxPlayers, EmptyRoomTtl = 0 });
-
-            MoveNextScene();
+            if (PhotonNetwork.CreateRoom(roomName, new RoomOptions { MaxPlayers = maxPlayers, EmptyRoomTtl = 0, CleanupCacheOnLeave = true }))
+            {
+                MoveNextScene();
+            }
+            else
+            {
+                lobbyUI.Alert("방 생성을 실패했습니다.");
+            }
         }
 
         public void JoinRoom(string roomName)

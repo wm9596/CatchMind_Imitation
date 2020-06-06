@@ -40,7 +40,7 @@ namespace Lobby
                 return false;
                 //Destroy(gameObject);
             }
-            this.RoomInfo = roomInfo;
+            RoomInfo = roomInfo;
             JoinRoomHandler = action;
             return true;
         }
@@ -53,8 +53,6 @@ namespace Lobby
                 // NetworkManager.Instance.JoinRoom(RoomInfo.Name);
             }
         }
-
-
-
+        
     }
 }
