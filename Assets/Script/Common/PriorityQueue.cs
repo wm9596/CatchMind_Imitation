@@ -33,6 +33,11 @@ namespace Common
             list.Sort(comparer);
         }
 
+        public List<T> ToList()
+        {
+            return list;
+        }
+
         public T Dequeue()
         {
             if (!IsEmpty())

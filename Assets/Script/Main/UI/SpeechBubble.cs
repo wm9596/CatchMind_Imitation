@@ -19,6 +19,11 @@ public class SpeechBubble : MonoBehaviour
 
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+
     public void DisplayChat(string msg, bool isAnswer)
     {
         gameObject.SetActive(true);

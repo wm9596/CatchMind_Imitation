@@ -17,7 +17,7 @@ public class PlayerItem : MonoBehaviour
 
     public SpeechBubble speechBubble;
     public GameObject turnImage;
-    public GameObject blockPanel;
+    public GameObject disableImgge;
 
     public Action<string> GetScoreHandler;
 
@@ -49,6 +49,12 @@ public class PlayerItem : MonoBehaviour
         speechBubble.gameObject.SetActive(false);
         turnImage.SetActive(false);
         masterImg.SetActive(false);
+        disableImgge.SetActive(false);
+    }
+
+    public void SetDisable()
+    {
+        disableImgge.SetActive(true);
     }
     
     public void SetIndex(int i)

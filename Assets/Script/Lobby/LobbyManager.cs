@@ -18,7 +18,7 @@ namespace Lobby
 
         private void Awake()
         {
-            if(!PhotonNetwork.IsConnected)
+            if (!PhotonNetwork.IsConnected)
                 PhotonNetwork.ConnectUsingSettings();
         }
 
@@ -44,13 +44,40 @@ namespace Lobby
             lobbyUI.JoinRoomHandler += JoinRoom;
             lobbyUI.CreateRoomHandler += CreateRoom;
         }
-       
+
         public override void OnDisable()
         {
             base.OnDisable();
 
             lobbyUI.JoinRoomHandler -= JoinRoom;
             lobbyUI.CreateRoomHandler -= CreateRoom;
+        }
+
+        public override void OnCreatedRoom()
+        {
+            base.OnCreatedRoom();
+            Debug.Log("OnCreatedRoom");
+        }
+
+        public override void OnCreateRoomFailed(short returnCode, string message)
+        {
+            base.OnCreateRoomFailed(returnCode, message);
+            Debug.Log("OnCreateRoomFailed");
+            lobbyUI.Alert("방 생성을 실패했습니다.");
+        }
+
+        public override void OnJoinedRoom()
+        {
+            base.OnJoinedRoom();
+            Debug.Log("OnJoinedRoom");
+            MoveNextScene();
+        }
+
+        public override void OnJoinRoomFailed(short returnCode, string message)
+        {
+            base.OnJoinRandomFailed(returnCode, message);
+            Debug.Log("OnJoinRoomFailed");
+            lobbyUI.Alert("방 입장에 실패했습니다.\n\n" + message);
         }
 
         public override void OnRoomListUpdate(List<RoomInfo> roomList)
@@ -62,20 +89,12 @@ namespace Lobby
 
         public void CreateRoom(string roomName, byte maxPlayers = 5)
         {
-            if (PhotonNetwork.CreateRoom(roomName, new RoomOptions { MaxPlayers = maxPlayers, EmptyRoomTtl = 0, CleanupCacheOnLeave = true }))
-            {
-                MoveNextScene();
-            }
-            else
-            {
-                lobbyUI.Alert("방 생성을 실패했습니다.");
-            }
+            PhotonNetwork.CreateRoom(roomName, new RoomOptions { MaxPlayers = maxPlayers, EmptyRoomTtl = 0, CleanupCacheOnLeave = true });
         }
 
-        public void JoinRoom(string roomName)
+        public void JoinRoom(RoomInfo roomInfo)
         {
-            PhotonNetwork.JoinRoom(roomName);
-            MoveNextScene();
+            PhotonNetwork.JoinRoom(roomInfo.Name);
         }
 
         public void MoveNextScene()
@@ -83,4 +102,4 @@ namespace Lobby
             UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.MAIN);
         }
     }
-}   
+}

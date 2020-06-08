@@ -42,11 +42,13 @@ namespace Main.UI
             playerDictionary = new Dictionary<string, PlayerItem>();
         }
 
-        public void Init(bool isMaster, Action gamestart)
+        public void Init(bool isMaster, Action gamestart, int maxPlayerNum)
         {
             InitQueue();
 
             watingPanel.Init(isMaster, gamestart);
+
+            SetPlayerNum(maxPlayerNum);
         }
 
         private void InitQueue()
@@ -68,6 +70,16 @@ namespace Main.UI
             itemQue.Add(left[i]);
         }
 
+        public void SetPlayerNum(int maxPlayerNum)
+        {
+            var list = itemQue.ToList();
+
+            for (int i = 1; i <= list.Count - maxPlayerNum; i++)
+            {
+                list[list.Count - i].SetDisable();
+            }
+        }
+
         public void GameStart()
         {
             watingPanel.gameObject.SetActive(false);
@@ -84,7 +96,7 @@ namespace Main.UI
             PlayerScoreReset();
         }
 
-        public void AddPlayer(UserAccount user,bool isMine)
+        public void AddPlayer(UserAccount user, bool isMine)
         {
             var item = itemQue.Dequeue();
             if (item == null)
@@ -108,7 +120,7 @@ namespace Main.UI
             itemQue.Add(item);
         }
 
-        public void ChangeMasterPlayer(string masterName,string myName)
+        public void ChangeMasterPlayer(string masterName, string myName)
         {
             watingPanel.StartButtonActive(myName.Equals(masterName));
 
@@ -129,6 +141,8 @@ namespace Main.UI
 
         public void ToggleChating(bool isActive)
         {
+            chatInputField.text = "";
+            chatInputField.OnDeselect(null);
             chatInputField.interactable = isActive;
         }
 
@@ -139,16 +153,16 @@ namespace Main.UI
 
         public void SendChat(string str)
         {
-            if(str.Length>=1)    
-             SendChatHandler?.Invoke(str);
+            if (str.Length >= 1)
+                SendChatHandler?.Invoke(str);
         }
 
-        public void GetChat(string name, string msg,bool isAnswer)
+        public void GetChat(string name, string msg, bool isAnswer)
         {
             playerDictionary[name].DisplayChat(msg, isAnswer);
         }
 
-        public void PlayerGetScore(string name,int point)
+        public void PlayerGetScore(string name, int point)
         {
             playerDictionary[name].Score += point;
         }
@@ -160,7 +174,7 @@ namespace Main.UI
 
         public void PlayerScoreReset()
         {
-            foreach(var player in playerDictionary.Values)
+            foreach (var player in playerDictionary.Values)
             {
                 player.Score = 0;
             }

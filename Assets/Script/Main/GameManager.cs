@@ -44,6 +44,18 @@ namespace Main
         private void Start()
         {
             db = DatabaseConnecter.GetInstance();
+            Init();
+        }
+
+        public void Init()
+        {
+            mainUI.Init(PhotonNetwork.IsMasterClient, delegate { SendRPC("GameStart"); }, PhotonNetwork.CurrentRoom.MaxPlayers);
+
+            foreach (var p in PhotonNetwork.PlayerList)
+            {
+                AddPlayer(p);
+            }
+            mainUI.ChangeMasterPlayer(PhotonNetwork.MasterClient.NickName, PhotonNetwork.NickName);
         }
 
         public override void OnEnable()
@@ -60,26 +72,20 @@ namespace Main
             mainUI.LeaveRoomHandler -= LeaveRoom;
         }
 
-        public override void OnCreatedRoom()
-        {
-            base.OnCreatedRoom();
-            Debug.Log("OnCreatedRoom");
-        }
+        //public override void OnCreatedRoom()
+        //{
+        //    base.OnCreatedRoom();
+        //    Debug.Log("OnCreatedRoom");
+        //}
 
         public override void OnJoinedRoom()
         {
             base.OnJoinedRoom();
             Debug.Log("OnJoinedRoom");
 
-            mainUI.Init(PhotonNetwork.IsMasterClient, delegate { SendRPC("GameStart"); });
-
-            foreach (var p in PhotonNetwork.PlayerList)
-            {
-                AddPlayer(p);
-            }
-            mainUI.ChangeMasterPlayer(PhotonNetwork.MasterClient.NickName, PhotonNetwork.NickName);
+            //Init();
         }
-
+        
         public override void OnLeftRoom()
         {
             base.OnLeftRoom();

@@ -14,7 +14,8 @@ namespace Lobby
         public Text roomName;
         public Text roomPlayerCnt;
 
-        private Action<string> JoinRoomHandler;
+        //private Action<string> JoinRoomHandler;
+        private Action<RoomInfo> JoinRoomHandler;
 
         private RoomInfo roomInfo;
 
@@ -32,7 +33,7 @@ namespace Lobby
             }
         }
 
-        public bool SetRoomInfo(RoomInfo roomInfo,Action<string> action)
+        public bool SetRoomInfo(RoomInfo roomInfo,Action<RoomInfo> action)
         {
            
             if (roomInfo.PlayerCount < 1)
@@ -47,11 +48,11 @@ namespace Lobby
 
         public void OnClicked()
         {
-            if (RoomInfo.PlayerCount < RoomInfo.MaxPlayers)
+            JoinRoomHandler?.Invoke(roomInfo);
+            /*if (RoomInfo.PlayerCount < RoomInfo.MaxPlayers)
             {
-                JoinRoomHandler?.Invoke(roomInfo.Name);
-                // NetworkManager.Instance.JoinRoom(RoomInfo.Name);
-            }
+                
+            }*/
         }
         
     }

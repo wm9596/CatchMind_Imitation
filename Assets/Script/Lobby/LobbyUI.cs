@@ -27,7 +27,7 @@ namespace Lobby
         public Text textID;
         public Text textWinRate;
 
-        public Action<string> JoinRoomHandler;
+        public Action<RoomInfo> JoinRoomHandler;
         public Action<string, byte> CreateRoomHandler;
         
         private Dictionary<string, RoomInfoItem> roomInfoItemDic;
@@ -109,10 +109,10 @@ namespace Lobby
         {
             AlertDialog.AlertDialogBuilder builder = new AlertDialog.AlertDialogBuilder();
             builder.SetTitle("알림")
-                .SetMessage(msg)
-                .SetCloseTime(2f)
-                .Build()
-                .Show();
+                    .SetMessage(msg)
+                    .SetCloseTime(2f)
+                    .Build()
+                    .Show();
         }
 
         private void CreateRoom(Dictionary<string, DialogInputField> dic)
