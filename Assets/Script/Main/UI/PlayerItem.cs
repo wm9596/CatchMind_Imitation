@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 using Common.Utility;
 
-public class PlayerItem : MonoBehaviour
+public class PlayerItem : MonoBehaviour, IComparable<PlayerItem>
 {
     //UI
     public Image profileImg;
@@ -111,11 +111,16 @@ public class PlayerItem : MonoBehaviour
         speechBubble.DisplayChat(msg, isAnswer);
     }
 
-    public class PlayerItemComparerHelper : IComparer<PlayerItem>
+    public int CompareTo(PlayerItem other)
+    {
+        return Index.CompareTo(other.Index);
+    }
+
+    /*public class PlayerItemComparerHelper : IComparer<PlayerItem>
     {
         public int Compare(PlayerItem x, PlayerItem y)
         {
             return x.Index.CompareTo(y.Index);
         }
-    }
+    }*/
 }

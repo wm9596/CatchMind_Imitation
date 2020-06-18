@@ -1,20 +1,26 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using System.Linq;
 
 namespace Common
 {
-    public class PriorityQueue<T>
+    public class PriorityQueue<T> where T : IComparable<T>
     {
         private List<T> list;
         private IComparer<T> comparer;
-      
 
-        public PriorityQueue(IComparer<T> comparer)
+
+        /*public PriorityQueue(IComparer<T> comparer)
         {
             list = new List<T>();
             this.comparer = comparer;
+        }*/
+
+        public PriorityQueue()
+        {
+            list = new List<T>();
         }
 
         public int GetLength()
@@ -30,7 +36,8 @@ namespace Common
         public void Add(T item)
         {
             list.Add(item);
-            list.Sort(comparer);
+            //list.Sort(comparer);
+            list.Sort();
         }
 
         public List<T> ToList()
