@@ -32,8 +32,6 @@ namespace Main.Drawing
 
         Vector2 prePos;
         
-        delegate void DrawingPen(Vector2 pos);
-        
         void Start()
         {
             Init();

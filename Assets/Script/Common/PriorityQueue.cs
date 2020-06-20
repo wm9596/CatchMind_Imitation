@@ -10,14 +10,7 @@ namespace Common
     {
         private List<T> list;
         private IComparer<T> comparer;
-
-
-        /*public PriorityQueue(IComparer<T> comparer)
-        {
-            list = new List<T>();
-            this.comparer = comparer;
-        }*/
-
+        
         public PriorityQueue()
         {
             list = new List<T>();
@@ -36,13 +29,12 @@ namespace Common
         public void Add(T item)
         {
             list.Add(item);
-            //list.Sort(comparer);
             list.Sort();
         }
 
         public List<T> ToList()
         {
-            return list;
+            return new List<T>(list);
         }
 
         public T Dequeue()

@@ -53,7 +53,6 @@ namespace Main.UI
 
         private void InitQueue()
         {
-            //itemQue = new PriorityQueue<PlayerItem>(new PlayerItem.PlayerItemComparerHelper());
             itemQue = new PriorityQueue<PlayerItem>();
 
             var left = playerPanelArr[(int)PlayerAlign.left].GetComponentsInChildren<PlayerItem>();

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 using Common.Dialog;
 using Common.Scene;
 
 using Photon.Pun;
-using Photon.Realtime;
 
 namespace Login
 {
@@ -32,8 +27,7 @@ namespace Login
         {
             loginUI.SetImageFileNameHandler -= ProfileImgSubmitted;
         }
-
-        // Start is called before the first frame update
+        
         private void Start()
         {
             db = DatabaseConnecter.GetInstance();
@@ -97,7 +91,6 @@ namespace Login
                 .SetTitle("회원가입")
                 .SetInputField("아이디를 입력", "id")
                 .SetInputField("비밀번호를 입력", "pswd", true)
-                //.SetBtn("중복검사", OnClickDuplicate, false)
                 .SetBtn("제출", OnClickMakeAccountSubmit, false)
                 .SetBtn("취소", null, true)
                 .Build()

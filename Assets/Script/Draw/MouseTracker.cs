@@ -69,7 +69,7 @@ public class MouseTracker : MonoBehaviourPun
         {
             yield return null;
             Vector3 mPos = cam.WorldToScreenPoint(transform.position);
-            // uIDrawing.GetMouseInput(mPos);
+           
             uIDrawing.GetMouseInput(mPos.x / Screen.width, mPos.y / Screen.height);
             photonView.RPC("Drawing", RpcTarget.Others, mPos.x / Screen.width, mPos.y / Screen.height);
         }
@@ -80,7 +80,6 @@ public class MouseTracker : MonoBehaviourPun
     [PunRPC]
     void Drawing(float x, float y)
     {
-        // uIDrawing.GetMouseInput(new Vector2(x * Screen.width, y * Screen.height));
         uIDrawing.GetMouseInput(x, y);
     }
 
@@ -89,7 +88,6 @@ public class MouseTracker : MonoBehaviourPun
     {
         uIDrawing.GetMouseUp();
     }
-
 
     [PunRPC]
     public void SetPenWidth(int w)

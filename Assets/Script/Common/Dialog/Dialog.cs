@@ -13,8 +13,7 @@ namespace Common.Dialog
         public GameObject containerPanel;
 
         public Text titleText;
-
-        // public Button positiveBtn;
+        
         public Transform btnGroup;
 
         public GameObject btnPrefab;
@@ -117,15 +116,7 @@ namespace Common.Dialog
                 title = _title;
                 return (T1)this;
             }
-
-            //public virtual T1 SetPositiveBtn(string text, Action action)
-            //{
-            //    // dialog.SetPositiveBtn(text, action);
-            //    positiveBtnText = text;
-            //    positiveBtnAction = action;
-            //    return (T1)this;
-            //}
-
+            
             public virtual T1 SetBtn(string text, Action action, bool isClose = true)
             {
                 btnInfoList.Add(new BtnInfo(text, action, isClose));
@@ -152,7 +143,6 @@ namespace Common.Dialog
                 dialog.SetTitle(title);
 
                 dialog.SetCloseTime(closeTime);
-                //dialog.SetPositiveBtn(positiveBtnText, positiveBtnAction);
 
                 SetBtns();
 

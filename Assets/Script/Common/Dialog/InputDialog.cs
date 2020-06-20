@@ -25,22 +25,22 @@ namespace Common.Dialog
             inputFieldDic = new Dictionary<string, DialogInputField>();
         }
 
-        public void SetInputField(string lable, string hint, bool visible, InputType type)
+        public void SetInputField(string label, string hint, bool visible, InputType type)
         {
-            if (lable.Equals("")) return;
+            if (label.Equals("")) return;
 
             var field = Instantiate(inputFieldPrefab, inputFieldGroup).GetComponent<DialogInputField>();
 
-            if (!inputFieldDic.ContainsKey(lable))
+            if (!inputFieldDic.ContainsKey(label))
             {
-                inputFieldDic.Add(lable, field);
+                inputFieldDic.Add(label, field);
             }
-            else if (inputFieldDic.ContainsKey(lable))
+            else if (inputFieldDic.ContainsKey(label))
             {
                 Destroy(field.gameObject);
             }
 
-            field.SetLable(lable, visible);
+            field.SetLable(label, visible);
             field.SetHint(hint);
             field.SetType(type);
         }
@@ -64,14 +64,14 @@ namespace Common.Dialog
 
             public struct InputFieldInfo
             {
-                public string lable { get; }
+                public string label { get; }
                 public string hint { get; }
                 public bool visible { get; }
                 public InputType type { get; }
 
-                public InputFieldInfo(string lable, string hint, bool visible, InputType type)
+                public InputFieldInfo(string label, string hint, bool visible, InputType type)
                 {
-                    this.lable = lable;
+                    this.label = label;
                     this.hint = hint;
                     this.visible = visible;
                     this.type = type;
@@ -109,9 +109,9 @@ namespace Common.Dialog
                 inputBtnInfoList = new List<InputBtnInfo>();
             }
 
-            public virtual InputDialogBuilder SetInputField(string hint, string lable = "", bool lableVisible = true, InputType type = InputType.STRING)
+            public virtual InputDialogBuilder SetInputField(string hint, string label = "", bool lableVisible = true, InputType type = InputType.STRING)
             {
-                inputFieldInfoList.Add(new InputFieldInfo(lable, hint, lableVisible, type));
+                inputFieldInfoList.Add(new InputFieldInfo(label, hint, lableVisible, type));
                 return this;
             }
 
@@ -141,11 +141,9 @@ namespace Common.Dialog
 
                 foreach (var info in inputFieldInfoList)
                 {
-                    dialog.SetInputField(info.lable, info.hint, info.visible, info.type);
+                    dialog.SetInputField(info.label, info.hint, info.visible, info.type);
                 }
-
-                //SetBtns();
-
+                
                 return dialog;
             }
 
